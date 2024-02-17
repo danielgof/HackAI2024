@@ -1,4 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
+import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 
 import 'package:camera/camera.dart';
 import 'package:compas/main.dart';
@@ -107,59 +111,56 @@ class DisplayPictureScreen extends StatelessWidget {
 
   const DisplayPictureScreen({super.key, required this.imagePath});
 
-  Future<void> sendApiRequest() async {
-    // the system message that will be sent to the request.
-    final systemMessage = OpenAIChatCompletionChoiceMessageModel(
-      content: [
-        OpenAIChatCompletionChoiceMessageContentItemModel.text(
-          "return any message you are given as JSON.",
-        ),
-      ],
-      role: OpenAIChatMessageRole.assistant,
-    );
+  Future<void> _sendFileToServer() async {
+    final String apiUrl = 'https://api.openai.com/v1/completions';
+    final Uri uri = Uri.parse(apiUrl);
+    print('++++++++++++++++++++++++++++++++++++');
+    File imageFile = File(imagePath);
+    List<int> imageData = await imageFile.readAsBytes();
+    // Convert bytes to base64
+    String base64Image = base64Encode(imageData);
+    print(base64Image);
 
-    // the user message that will be sent to the request.
-    final userMessage = OpenAIChatCompletionChoiceMessageModel(
-      content: [
-        OpenAIChatCompletionChoiceMessageContentItemModel.text(
-          "Provide a JSON-formatted response called allergens indicating the allergen risk levels present in peanut butter for the following allergens: - Milk - Eggs - Fish - Crustacean shellfish - Tree nuts - Peanuts - Wheat - Soybeans - Sesame seeds - Mustard - Sulfites - Celery - Lupin - Mollusks - Gluten-containing grains Assign one of the following risk levels to each allergen: 'high risk', 'medium risk', or 'low risk'.",
-        ),
+    // var request = http.MultipartRequest('POST', uri)
+    //   ..headers['Authorization'] =
+    //       'Bearer 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'
+    //   ..headers['Content-Type'] = 'application/json'
+    //   ..files.add(await http.MultipartFile.fromPath('image', imagePath));
 
-        //! image url contents are allowed only for models with image support such gpt-4.
-        // OpenAIChatCompletionChoiceMessageContentItemModel.imageUrl(
-        //   "https://preppykitchen.com/wp-content/uploads/2019/12/buckeyes-feature-a.jpg", //REPLACE WITH IMAGE URL
-        // ),
-      ],
-      role: OpenAIChatMessageRole.user,
-    );
+    // try {
+    //   var response = await request.send();
 
-    // all messages to be sent.
-    final requestMessages = [
-      systemMessage,
-      userMessage,
-    ];
-    print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-
-    // the actual request.
-    OpenAIChatCompletionModel chatCompletion =
-        await OpenAI.instance.chat.create(
-      model: "gpt-4-vision-preview",
-      responseFormat: {"type": "json_object"},
-      seed: 6,
-      messages: requestMessages,
-      temperature: 0.2,
-      maxTokens: 500,
-      toolChoice: "auto",
-    );
-    print(
-        "====================================================================");
-    print(chatCompletion.choices.first.message); // ...
-    print(chatCompletion.systemFingerprint); // ...
-    print(chatCompletion.usage.promptTokens); // ...
-    print(chatCompletion.id);
-    print(
-        "====================================================================");
+    //   if (response.statusCode == 200) {
+    //     var responseBody = await response.stream.bytesToString();
+    //     print(json.decode(responseBody)['response']);
+    //   } else {
+    //     print('Error: Unable to process the file.');
+    //   }
+    // } catch (error) {
+    //   print('error');
+    // }
   }
+  // Future<void> sendApiRequest() async {
+  //   final apiUrl = 'https://api.openai.com/v1/completions';
+
+  //   final response = await http.post(
+  //     Uri.parse(apiUrl),
+  //     headers: <String, String>{
+  //       'Content-Type': 'application/json; charset=UTF-8',
+  //       'Authorization':
+  //           'Bearer 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'
+  //     },
+  //     body: jsonEncode(<String, dynamic>{
+  //       "model": "davinci-002",
+  //       "prompt": "how are you doing",
+  //       "max_tokens": 250,
+  //       "temperature": 0,
+  //       "top_p": 1
+  //     }),
+  //   );
+  //   print('++++++++++++++++++++++++++++++++++++++++++++');
+  //   print(response.body);
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -170,7 +171,7 @@ class DisplayPictureScreen extends StatelessWidget {
       body: Image.file(File(imagePath)),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          await sendApiRequest();
+          await _sendFileToServer();
         },
         child: const Icon(Icons.send),
       ),
