@@ -1,6 +1,6 @@
 {
-    "name": "client",
-    "short_name": "client",
+    "name": "Compas",
+    "short_name": "Compas",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
