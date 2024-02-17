@@ -77,7 +77,8 @@ class MyAppState extends ChangeNotifier {
       final userMessage = OpenAIChatCompletionChoiceMessageModel(
         content: [
           OpenAIChatCompletionChoiceMessageContentItemModel.text(
-            "Answer first question as 1 or 0. Is this food? Are there potential sources of allregies? What are they??", //REPLACE WITH PROMPT
+            "Provide a JSON-formatted response called allergens indicating the allergen risk levels present in peanut butter for the following allergens: - Milk - Eggs - Fish - Crustacean shellfish - Tree nuts - Peanuts - Wheat - Soybeans - Sesame seeds - Mustard - Sulfites - Celery - Lupin - Mollusks - Gluten-containing grains Assign one of the following risk levels to each allergen: 'high risk', 'medium risk', or 'low risk'.", 
+            //REPLACE WITH ITEM
           ),
 
           //! image url contents are allowed only for models with image support such gpt-4.
