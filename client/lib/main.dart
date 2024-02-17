@@ -1,5 +1,8 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
-
+import 'package:camera/camera.dart';
+import 'package:compas/pages/public/landing_page.dart';
+import 'package:compas/pages/public/login_page.dart';
+import 'package:compas/pages/private/profile_page.dart';
+import 'package:compas/state.dart';
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -9,8 +12,6 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -21,68 +22,64 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
         ),
-        home: MyHomePage(),
+        home: Consumer<MyAppState>(
+          builder: (context, appState, _) {
+            // Obtain a list of the available cameras on the device.
+            return FutureBuilder<List<CameraDescription>>(
+              future: availableCameras(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  // Get a specific camera from the list of available cameras.
+                  final cameras = snapshot.data;
+                  final firstCamera = cameras!.first;
+                  return MyHomePage(camera: firstCamera);
+                }
+              },
+            );
+          },
+        ),
       ),
     );
   }
 }
 
-class MyAppState extends ChangeNotifier {
-  var current = WordPair.random();
-  var history = <WordPair>[];
-
-  GlobalKey? historyListKey;
-
-  void getNext() {
-    history.insert(0, current);
-    var animatedList = historyListKey?.currentState as AnimatedListState?;
-    animatedList?.insertItem(0);
-    current = WordPair.random();
-    notifyListeners();
-  }
-
-  var favorites = <WordPair>[];
-
-  void toggleFavorite([WordPair? pair]) {
-    pair = pair ?? current;
-    if (favorites.contains(pair)) {
-      favorites.remove(pair);
-    } else {
-      favorites.add(pair);
-    }
-    notifyListeners();
-  }
-
-  void removeFavorite(WordPair pair) {
-    favorites.remove(pair);
-    notifyListeners();
-  }
-}
-
 class MyHomePage extends StatefulWidget {
+  final CameraDescription camera;
+
+  const MyHomePage({super.key, required this.camera});
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var selectedIndex = 0;
+  // var selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     var colorScheme = Theme.of(context).colorScheme;
+    var appState = context.watch<MyAppState>();
+    int selectedIndex = appState.pageSate;
 
     Widget page;
     switch (selectedIndex) {
       case 0:
-        page = GeneratorPage();
+        page = LandingPage(
+          camera: widget.camera,
+        );
         break;
       case 1:
         page = FavoritesPage();
         break;
+      case 2:
+        page = appState.isAuth == false ? LoginPage() : ProfilePage();
+        break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
-
     // The container for the current page, with its background color
     // and subtle switching animation.
     var mainArea = ColoredBox(
@@ -113,12 +110,14 @@ class _MyHomePageState extends State<MyHomePage> {
                         icon: Icon(Icons.favorite),
                         label: 'Favorites',
                       ),
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.login),
+                        label: 'Login',
+                      ),
                     ],
                     currentIndex: selectedIndex,
                     onTap: (value) {
-                      setState(() {
-                        selectedIndex = value;
-                      });
+                      appState.setPageSate(value);
                     },
                   ),
                 )
@@ -139,12 +138,14 @@ class _MyHomePageState extends State<MyHomePage> {
                         icon: Icon(Icons.favorite),
                         label: Text('Favorites'),
                       ),
+                      NavigationRailDestination(
+                        icon: Icon(Icons.login),
+                        label: Text('Login'),
+                      ),
                     ],
                     selectedIndex: selectedIndex,
                     onDestinationSelected: (value) {
-                      setState(() {
-                        selectedIndex = value;
-                      });
+                      appState.setPageSate(value);
                     },
                   ),
                 ),
@@ -153,56 +154,6 @@ class _MyHomePageState extends State<MyHomePage> {
             );
           }
         },
-      ),
-    );
-  }
-}
-
-class GeneratorPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-    var pair = appState.current;
-
-    IconData icon;
-    if (appState.favorites.contains(pair)) {
-      icon = Icons.favorite;
-    } else {
-      icon = Icons.favorite_border;
-    }
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Expanded(
-            flex: 3,
-            child: HistoryListView(),
-          ),
-          SizedBox(height: 10),
-          BigCard(pair: pair),
-          SizedBox(height: 10),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton.icon(
-                onPressed: () {
-                  appState.toggleFavorite();
-                },
-                icon: Icon(icon),
-                label: Text('Like'),
-              ),
-              SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () {
-                  appState.getNext();
-                },
-                child: Text('Next'),
-              ),
-            ],
-          ),
-          Spacer(flex: 2),
-        ],
       ),
     );
   }
