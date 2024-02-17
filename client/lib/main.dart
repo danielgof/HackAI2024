@@ -77,7 +77,7 @@ class MyAppState extends ChangeNotifier {
       final userMessage = OpenAIChatCompletionChoiceMessageModel(
         content: [
           OpenAIChatCompletionChoiceMessageContentItemModel.text(
-            "Your task is to see if this food contains allergens. Is this made with peanuts?", //REPLACE WITH PROMPT
+            "Answer first question as 1 or 0. Is this food? Are there potential sources of allregies? What are they??", //REPLACE WITH PROMPT
           ),
 
           //! image url contents are allowed only for models with image support such gpt-4.
