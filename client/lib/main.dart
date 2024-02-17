@@ -3,11 +3,14 @@ import 'package:compas/pages/public/landing_page.dart';
 import 'package:compas/pages/public/login_page.dart';
 import 'package:compas/pages/private/profile_page.dart';
 import 'package:compas/state.dart';
+import 'package:dart_openai/dart_openai.dart';
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 void main() {
+  OpenAI.apiKey =
+      "my key"; //CHANGE THIS LATER
   runApp(MyApp());
 }
 

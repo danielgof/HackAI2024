@@ -5,8 +5,7 @@ import 'package:compas/main.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../state.dart';
-import 'generator_page.dart';
+import 'package:dart_openai/dart_openai.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({
@@ -108,6 +107,60 @@ class DisplayPictureScreen extends StatelessWidget {
 
   const DisplayPictureScreen({super.key, required this.imagePath});
 
+  Future<void> sendApiRequest() async {
+    // the system message that will be sent to the request.
+    final systemMessage = OpenAIChatCompletionChoiceMessageModel(
+      content: [
+        OpenAIChatCompletionChoiceMessageContentItemModel.text(
+          "return any message you are given as JSON.",
+        ),
+      ],
+      role: OpenAIChatMessageRole.assistant,
+    );
+
+    // the user message that will be sent to the request.
+    final userMessage = OpenAIChatCompletionChoiceMessageModel(
+      content: [
+        OpenAIChatCompletionChoiceMessageContentItemModel.text(
+          "Provide a JSON-formatted response called allergens indicating the allergen risk levels present in peanut butter for the following allergens: - Milk - Eggs - Fish - Crustacean shellfish - Tree nuts - Peanuts - Wheat - Soybeans - Sesame seeds - Mustard - Sulfites - Celery - Lupin - Mollusks - Gluten-containing grains Assign one of the following risk levels to each allergen: 'high risk', 'medium risk', or 'low risk'.",
+        ),
+
+        //! image url contents are allowed only for models with image support such gpt-4.
+        // OpenAIChatCompletionChoiceMessageContentItemModel.imageUrl(
+        //   "https://preppykitchen.com/wp-content/uploads/2019/12/buckeyes-feature-a.jpg", //REPLACE WITH IMAGE URL
+        // ),
+      ],
+      role: OpenAIChatMessageRole.user,
+    );
+
+    // all messages to be sent.
+    final requestMessages = [
+      systemMessage,
+      userMessage,
+    ];
+    print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+
+    // the actual request.
+    OpenAIChatCompletionModel chatCompletion =
+        await OpenAI.instance.chat.create(
+      model: "gpt-4-vision-preview",
+      responseFormat: {"type": "json_object"},
+      seed: 6,
+      messages: requestMessages,
+      temperature: 0.2,
+      maxTokens: 500,
+      toolChoice: "auto",
+    );
+    print(
+        "====================================================================");
+    print(chatCompletion.choices.first.message); // ...
+    print(chatCompletion.systemFingerprint); // ...
+    print(chatCompletion.usage.promptTokens); // ...
+    print(chatCompletion.id);
+    print(
+        "====================================================================");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -115,6 +168,12 @@ class DisplayPictureScreen extends StatelessWidget {
       // The image is stored as a file on the device. Use the `Image.file`
       // constructor with the given path to display the image.
       body: Image.file(File(imagePath)),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await sendApiRequest();
+        },
+        child: const Icon(Icons.send),
+      ),
     );
   }
 }
