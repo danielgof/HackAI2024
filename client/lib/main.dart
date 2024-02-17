@@ -77,12 +77,12 @@ class MyAppState extends ChangeNotifier {
       final userMessage = OpenAIChatCompletionChoiceMessageModel(
         content: [
           OpenAIChatCompletionChoiceMessageContentItemModel.text(
-            "Hello, I am a chatbot created by OpenAI. How are you today?", //REPLACE WITH PROMPT
+            "Your task is to see if this food contains allergens. Is this made with peanuts?", //REPLACE WITH PROMPT
           ),
 
           //! image url contents are allowed only for models with image support such gpt-4.
           OpenAIChatCompletionChoiceMessageContentItemModel.imageUrl(
-            "https://placehold.co/600x400", //REPLACE WITH IMAGE URL
+            "https://preppykitchen.com/wp-content/uploads/2019/12/buckeyes-feature-a.jpg", //REPLACE WITH IMAGE URL
           ),
         ],
         role: OpenAIChatMessageRole.user,
@@ -96,7 +96,7 @@ class MyAppState extends ChangeNotifier {
 
       // the actual request.
       OpenAIChatCompletionModel chatCompletion = await OpenAI.instance.chat.create(
-        model: "gpt-3.5-turbo-1106", //REPLACE WITH THE MODEL WE USE
+        model: "gpt-4-vision-preview",
         responseFormat: {"type": "json_object"},
         seed: 6,
         messages: requestMessages,
@@ -272,7 +272,7 @@ class GeneratorPage extends StatelessWidget {
               SizedBox(width: 10),
               ElevatedButton(
                 onPressed: () {
-                  appState.sendApiRequest(); // Call the API request function here
+                  appState.sendApiRequest(); // Call the API request function here, needs link to picture
                 },
                 child: Text('Send API Request'),
               ),
