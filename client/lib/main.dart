@@ -3,8 +3,10 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:dart_openai/dart_openai.dart';
 
 void main() {
+  OpenAI.apiKey = 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; //CHANGE THIS LATER
   runApp(MyApp());
 }
 
@@ -56,6 +58,74 @@ class MyAppState extends ChangeNotifier {
   void removeFavorite(WordPair pair) {
     favorites.remove(pair);
     notifyListeners();
+  }
+}
+
+  Future<void> sendApiRequest() async {
+    try {
+      // the system message that will be sent to the request.
+      final systemMessage = OpenAIChatCompletionChoiceMessageModel(
+        content: [
+          OpenAIChatCompletionChoiceMessageContentItemModel.text(
+            "return any message you are given as JSON.",
+          ),
+        ],
+        role: OpenAIChatMessageRole.assistant,
+      );
+
+      // the user message that will be sent to the request.
+      final userMessage = OpenAIChatCompletionChoiceMessageModel(
+        content: [
+          OpenAIChatCompletionChoiceMessageContentItemModel.text(
+            "Hello, I am a chatbot created by OpenAI. How are you today?", //REPLACE WITH PROMPT
+          ),
+
+          //! image url contents are allowed only for models with image support such gpt-4.
+          OpenAIChatCompletionChoiceMessageContentItemModel.imageUrl(
+            "https://placehold.co/600x400", //REPLACE WITH IMAGE URL
+          ),
+        ],
+        role: OpenAIChatMessageRole.user,
+      );
+
+      // all messages to be sent.
+      final requestMessages = [
+        systemMessage,
+        userMessage,
+      ];
+
+      // the actual request.
+      OpenAIChatCompletionModel chatCompletion = await OpenAI.instance.chat.create(
+        model: "gpt-3.5-turbo-1106", //REPLACE WITH THE MODEL WE USE
+        responseFormat: {"type": "json_object"},
+        seed: 6,
+        messages: requestMessages,
+        temperature: 0.2,
+        maxTokens: 500,
+        toolChoice: "auto",
+      );
+
+    //   final response = await http.post(
+    //     Uri.parse('YOUR_API_ENDPOINT_URL_HERE'), //https://api.openai.com/v1/chat/completions
+    //     headers: <String, String>{
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: jsonEncode(<String, String>{
+    //       'key': 'value', // CHANGE PARAMETERS
+    //     }),
+    //   );
+
+    //   if (response.statusCode == 200) {
+    //     // Handle successful response
+    //     print('API request successful');
+    //   } else {
+    //     // Handle other status codes (e.g., 4xx, 5xx)
+    //     print('API request failed with status code: ${response.statusCode}');
+    //   }
+    // } catch (e) {
+    //   // Handle errors
+    //   print('Error sending API request: $e');
+    // }
   }
 }
 
@@ -199,6 +269,13 @@ class GeneratorPage extends StatelessWidget {
                 },
                 child: Text('Next'),
               ),
+              SizedBox(width: 10),
+              ElevatedButton(
+                onPressed: () {
+                  appState.sendApiRequest(); // Call the API request function here
+                },
+                child: Text('Send API Request'),
+              ),
             ],
           ),
           Spacer(flex: 2),
@@ -207,6 +284,7 @@ class GeneratorPage extends StatelessWidget {
     );
   }
 }
+
 
 class BigCard extends StatelessWidget {
   const BigCard({
