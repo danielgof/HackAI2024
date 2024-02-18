@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -82,36 +84,41 @@ class ProfilePageState extends State<ProfilePage> {
           ),
           Column(
             children: [
-              Icon(
-                Icons.account_circle_rounded, //PROFILE PICTURE GOES HERE
-                size: 80,
+              ClipOval(
+                child: Image.asset(
+                  'assets/brutus_buckeye.jpeg', // Assuming the image is stored in the assets folder
+                  width: 80, // Adjust the width as needed
+                  height: 80, // Adjust the height as needed
+                ),
               ),
             ],
           ),
           Text(
-            'Welcome, USERNAME!',
+            'Welcome, brutus_buckeye!',
             style: TextStyle(fontSize: 16),
           ),
-          Row(
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  _toggleEditPrefrences(_isVisible);
-                },
-                child: Column(
-                  children: [Text('Edit Prefrences')],
+          Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    _toggleEditPrefrences(_isVisible);
+                  },
+                  child: Column(
+                    children: [Text('Edit Prefrences')],
+                  ),
                 ),
-              ),
-              SizedBox(width: 5),
-              ElevatedButton(
-                onPressed: () {
-                  appState.logout();
-                },
-                child: Row(
-                  children: [Text('Logout'), Icon(Icons.arrow_forward)],
+                ElevatedButton(
+                  onPressed: () {
+                    appState.logout();
+                  },
+                  child: Row(
+                    children: [Text('Logout'), Icon(Icons.arrow_forward)],
+                  ),
                 ),
-              ),     
-            ]
+              ],
+            ),
           ),
           Visibility(
             visible: _isVisible,
