@@ -1,6 +1,8 @@
 from openai import OpenAI
 
-client = OpenAI(api_key = "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")
+client = OpenAI(apikey = "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")
+
+specificAllergens = "Nuts"
 
 response = client.chat.completions.create(
   model="gpt-4-vision-preview",
@@ -14,7 +16,8 @@ response = client.chat.completions.create(
         "IF FOOD RESPOND:" +
         "HEADER[Food Name]"+
         "DESCRIPTION[brief decription no more then 10 words]"+
-        "HEADER{Potential Allergens:}"+
+        "IF CONTAINS CONTENTS FROM THIS LIST: " + specificAllergens + " HEADER{Your Allergens Detected:} + BULLET POINTS - [bullet points of allergens from the list]"
+        "HEADER{Other Potential Allergens:}"+
         "BULLET POINTS - [bullet point specific food items or contents it is made out of that may cause allergies]"+
         "HEADER{Estimated Caloric Content:}"+
         "BULLET POINTS[Number of same food items if countable and estimated calloriesfor each]"+
@@ -24,7 +27,7 @@ response = client.chat.completions.create(
         {
           "type": "image_url",
           "image_url": {
-            "url": "https://myplate-prod.azureedge.us/sites/default/files/styles/recipe_525_x_350_/public/2020-10/FlavorfulFriedRice527x323.jpg",
+            "url": "https://myplate-prod.azureedge.us/sites/default/files/styles/recipe_525_x_350/public/2020-10/FlavorfulFriedRice527x323.jpg",
           },
         },
       ],

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:compas/state.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
@@ -35,11 +36,13 @@ class LandingPageState extends State<LandingPage> {
   late String response;
   bool isClicked = false;
 
-  Future<void> _sendFileToServer() async {
+  Future<void> _sendFileToServer(MyAppState state) async {
     File imageFile = File(imagePath);
     List<int> imageData = await imageFile.readAsBytes();
     // Convert bytes to base64
     String base64Image = base64Encode(imageData);
+    String result = state.preferences.toString();
+    // print(result);
     // print(base64Image);
 
     var url = Uri.parse('https://api.openai.com/v1/chat/completions');
@@ -56,7 +59,10 @@ class LandingPageState extends State<LandingPage> {
                   "IF FOOD RESPOND:" +
                   "HEADER[Food Name]" +
                   "DESCRIPTION[brief decription no more then 10 words]" +
-                  "HEADER{Potential Allergens:}" +
+                  "IF CONTAINS CONTENTS FROM THIS LIST: " +
+                  result +
+                  " HEADER{Your Allergens Detected:} + BULLET POINTS - [bullet points of allergens from the list]"
+                      "HEADER{Other Potential Allergens:}" +
                   "BULLET POINTS - [bullet point specific food items or contents it is made out of that may cause allergies]" +
                   "HEADER{Estimated Caloric Content:}" +
                   "BULLET POINTS[Number of same food items if countable and estimated calloriesfor each]" +
@@ -86,6 +92,7 @@ class LandingPageState extends State<LandingPage> {
       body: jsonEncode(requestBody),
     );
 
+    print('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++');
     if (response.statusCode == 200) {
       setResult(jsonDecode(response.body)['choices'][0]['message']['content']);
       print(
@@ -166,7 +173,7 @@ class LandingPageState extends State<LandingPage> {
       case PageType.CameraPage:
         return _buildCameraPreview();
       case PageType.PicutrePage:
-        return _buildPicturePage();
+        return _buildPicturePage(appState);
       case PageType.ResponsePage:
         return _buildResponsePage(appState);
       case PageType.WaitPage:
@@ -265,7 +272,7 @@ class LandingPageState extends State<LandingPage> {
     );
   }
 
-  Widget _buildPicturePage() {
+  Widget _buildPicturePage(MyAppState state) {
     return SafeArea(
       child: Column(children: [
         Card(
@@ -305,7 +312,7 @@ class LandingPageState extends State<LandingPage> {
             child: FloatingActionButton(
               onPressed: () async {
                 setWaitPage();
-                await _sendFileToServer();
+                await _sendFileToServer(state);
               },
               child: const Icon(Icons.send),
             ),

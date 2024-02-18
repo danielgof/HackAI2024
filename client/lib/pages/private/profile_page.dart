@@ -89,53 +89,6 @@ class ProfilePageState extends State<ProfilePage> {
                       width: 80, // Adjust the width as needed
                       height: 80, // Adjust the height as needed
                     ),
-<<<<<<< HEAD
-                    SizedBox(height: 10),
-                    ClipOval(
-                      child: Image.asset(
-                        'assets/brutus_buckeye.jpeg', // Assuming the image is stored in the assets folder
-                        width: 80, // Adjust the width as needed
-                        height: 80, // Adjust the height as needed
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      'Welcome, brutus_buckeye!',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                                        
-                    Visibility(
-                      visible: !_isVisible,
-                      child: SizedBox(
-                        height: 100, // Set the desired fixed height
-                        child: ListView.builder(
-                          itemCount: _list.length,
-                          itemBuilder: (context, index) {
-                            if (_checkedList[index]) {
-                              return ListTile(
-                                title: Text(_list[index]),
-                              );
-                            } else {
-                              return SizedBox.shrink(); // Hide if preference is not true
-                            }
-                          },
-                        ),
-                      ),
-                    ),
-
-                   
-                    Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              _toggleEditPreferences(_isVisible);
-                            },
-                            child: Column(
-                              children: [Text('Edit Preferences')],
-                            ),
-=======
                   ),
                   SizedBox(height: 10),
                   Text(
@@ -143,6 +96,35 @@ class ProfilePageState extends State<ProfilePage> {
                     style: TextStyle(fontSize: 16),
                   ),
                   SizedBox(height: 20),
+                  Visibility(
+                    visible: !_isVisible,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'My Allergies:',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(
+                          height: 100, // Set the desired fixed height
+                          child: ListView.builder(
+                            itemCount: _list.length,
+                            itemBuilder: (context, index) {
+                              if (_checkedList[index]) {
+                                return ListTile(
+                                  title: Text(_list[index]),
+                                );
+                              } else {
+                                return SizedBox
+                                    .shrink(); // Hide if preference is not true
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   Center(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -153,7 +135,6 @@ class ProfilePageState extends State<ProfilePage> {
                           },
                           child: Column(
                             children: [Text('Edit Preferences')],
->>>>>>> feb1f0ee89a55eb1d636e4c5a71066d66160d53c
                           ),
                         ),
                         ElevatedButton(
@@ -178,22 +159,6 @@ class ProfilePageState extends State<ProfilePage> {
                 [
                   Visibility(
                     visible: _isVisible,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextField(
-                        controller: _searchController,
-                        onChanged: _filterList,
-                        decoration: InputDecoration(
-                          labelText: 'I am allergic to...',
-                          fillColor: Colors.white,
-                          filled: true,
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Visibility(
-                    visible: _isVisible,
                     child: SizedBox(
                       height: 200,
                       child: ListView.builder(
@@ -204,10 +169,9 @@ class ProfilePageState extends State<ProfilePage> {
                             value: _checkedList[index],
                             onChanged: (bool? value) {
                               _toggleCheckbox(index);
-                              if (_isVisible) {
+                              if (_checkedList[index]) {
                                 appState.toggelPreference(_searchList[index]);
-                              } else {
-                                appState.removePreference(_searchList[index]);
+                                
                               }
                             },
                           );

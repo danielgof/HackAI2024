@@ -18,42 +18,37 @@ class _LoginPageState extends State<LoginPage> {
         child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          'Welcome to SeeFood',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold
-          )),
+        Text('Welcome to SeeFood',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
         Card(
-          child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              child: Column(children: [
-                SizedBox(height: 10),
-                Container(
-                  decoration: BoxDecoration(
-                    // color: Colors.tealAccent,
-                    borderRadius: BorderRadius.circular(32),
-                  ),
-                  child: TextField(
-                    decoration:
-                        const InputDecoration.collapsed(hintText: 'Username'),
-                  ),
-                ),
-                Divider(),
-                Container(
-                  decoration: BoxDecoration(
-                    // color: Colors.tealAccent,
-                    borderRadius: BorderRadius.circular(32),
-                  ),
-                  child: TextField(
-                    decoration:
-                        const InputDecoration.collapsed(hintText: 'Password'),
-                  ),
-                ),
-                Divider(),
-              ]),
-          )
-        ),
+            child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: Column(children: [
+            SizedBox(height: 10),
+            Container(
+              decoration: BoxDecoration(
+                // color: Colors.tealAccent,
+                borderRadius: BorderRadius.circular(32),
+              ),
+              child: TextField(
+                decoration:
+                    const InputDecoration.collapsed(hintText: 'Username'),
+              ),
+            ),
+            Divider(),
+            Container(
+              decoration: BoxDecoration(
+                // color: Colors.tealAccent,
+                borderRadius: BorderRadius.circular(32),
+              ),
+              child: TextField(
+                decoration:
+                    const InputDecoration.collapsed(hintText: 'Password'),
+              ),
+            ),
+            Divider(),
+          ]),
+        )),
         ElevatedButton(
           onPressed: () {
             appState.login();
