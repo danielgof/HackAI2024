@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 
 void main() {
   OpenAI.apiKey =
-      "my key"; //CHANGE THIS LATER
+      "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"; //CHANGE THIS LATER
   runApp(MyApp());
 }
 
