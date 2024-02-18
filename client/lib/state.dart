@@ -44,17 +44,8 @@ class MyAppState extends ChangeNotifier {
     }
     notifyListeners();
   }
-  // void toggleFavorite([WordPair? pair]) {
-  //   pair = pair ?? current;
-  //   if (favorites.contains(pair)) {
-  //     favorites.remove(pair);
-  //   } else {
-  //     favorites.add(pair);
-  //   }
-  //   notifyListeners();
-  // }
 
-  void removeFavorite(WordPair pair) {
+  void removeFavorite(String pair) {
     favorites.remove(pair);
     notifyListeners();
   }

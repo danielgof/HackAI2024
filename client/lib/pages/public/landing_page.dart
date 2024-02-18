@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:compas/state.dart';
+import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
 
 enum PageType {
   LandingPage,
@@ -51,8 +51,18 @@ class LandingPageState extends State<LandingPage> {
           "content": [
             {
               "type": "text",
-              "text":
-                  "Answer first question as 1 or 0. Is this food? Are there potential sources of allregies? What are they?"
+              "text": "OUTPUT PARAMETERS: HEADER - bolded, DESCRIPTION - italic, BRACKETS - description of what to write, CURLY BRACKETS - as written"
+                      "Is it food? IF NO RESPOND: {DO NOT EAT THAT [OBJECT]}" +
+                  "IF FOOD RESPOND:" +
+                  "HEADER[Food Name]" +
+                  "DESCRIPTION[brief decription no more then 10 words]" +
+                  "HEADER{Potential Allergens:}" +
+                  "BULLET POINTS - [bullet point specific food items or contents it is made out of that may cause allergies]" +
+                  "HEADER{Estimated Caloric Content:}" +
+                  "BULLET POINTS[Number of same food items if countable and estimated calloriesfor each]" +
+                  "HEADER{Total Calories:}" +
+                  "BULLET POINT[Estimate total calories of the all the foods]" +
+                  "DESCRIPTION[Potential health beneifts and risks of the foods no more then 50 words]"
             },
             {
               "type": "image_url",
@@ -67,7 +77,7 @@ class LandingPageState extends State<LandingPage> {
     var headers = {
       'Content-Type': 'application/json',
       'Authorization':
-          'Bearer ',
+          'Bearer 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',
     };
 
     var response = await http.post(
@@ -77,10 +87,9 @@ class LandingPageState extends State<LandingPage> {
     );
 
     if (response.statusCode == 200) {
-      setResult(jsonDecode(response.body)['choices'][0]['message']['content']
-          .substring(2));
+      setResult(jsonDecode(response.body)['choices'][0]['message']['content']);
       print(
-          'Response body: ${jsonDecode(response.body)['choices'][0]['message']['content'].substring(2)}');
+          'Response body: ${jsonDecode(response.body)['choices'][0]['message']['content']}');
       setResponsePage();
     } else {
       print('Request failed with status: ${response.statusCode}');
@@ -386,73 +395,88 @@ class LandingPageState extends State<LandingPage> {
     }
     return response == Null
         ? Center(child: Text('No data found'))
-        : Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius:
-                        BorderRadius.circular(20.0), // Rounded corners
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.5),
-                        spreadRadius: 5,
-                        blurRadius: 7,
-                        offset: Offset(0, 3), // Shadow position
-                      ),
-                    ],
-                  ),
-                  child: Expanded(
-                    child: Image.file(
-                      // width: 300.0,
-                      height: 200.0,
-                      File(imagePath),
-                    ),
-                  ),
-                ),
-              ),
-              Stack(
+        : SingleChildScrollView(
+            child: Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Card(
-                    child: SingleChildScrollView(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          response,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius:
+                            BorderRadius.circular(20.0), // Rounded corners
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color.fromARGB(255, 255, 255, 255)
+                                .withOpacity(0.5),
+                            spreadRadius: 5,
+                            blurRadius: 7,
+                            offset: Offset(0, 3), // Shadow position
                           ),
+                        ],
+                      ),
+                      child: Expanded(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Image.file(
+                              height: 200.0,
+                              File(imagePath),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                appState.toggleFavorite(response);
+                              },
+                              child: Icon(
+                                icon,
+                                size: 50.0,
+                              ),
+                              // label: Text('Like'),
+                            ),
+                          ],
                         ),
                       ),
                     ),
                   ),
-                  Positioned(
-                    top: 16.0,
-                    right: 16.0,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        appState.toggleFavorite(response);
-                      },
-                      icon: Icon(icon),
-                      label: Text('Like'),
+                  SingleChildScrollView(
+                    child: Expanded(
+                      child: Stack(
+                        children: [
+                          Expanded(
+                            child: Card(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  response,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Positioned(
+                      bottom: 16.0,
+                      right: 16.0,
+                      child: FloatingActionButton(
+                        onPressed: () async {
+                          setLandingPage();
+                        },
+                        child: const Icon(Icons.home),
+                      ),
                     ),
                   ),
                 ],
               ),
-              Positioned(
-                bottom: 16.0,
-                right: 16.0,
-                child: FloatingActionButton(
-                  onPressed: () async {
-                    setLandingPage();
-                  },
-                  child: const Icon(Icons.home),
-                ),
-              ),
-            ],
+            ),
           );
   }
 
