@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:camera/camera.dart';
@@ -64,7 +65,7 @@ class LandingPageState extends State<LandingPage> {
     var headers = {
       'Content-Type': 'application/json',
       'Authorization':
-          'Bearer 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',
+          'Bearer ',
     };
 
     var response = await http.post(
@@ -254,46 +255,49 @@ class LandingPageState extends State<LandingPage> {
           ),
         ),
         child: Column(children: [
-          Container(
-            width: 200,
-            height: 200,
-            decoration: BoxDecoration(
-              color: Colors.white
-                  .withOpacity(0.2), // Adjust opacity for the glass effect
-              borderRadius:
-                  BorderRadius.circular(20), // Adjust border radius as needed
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.white.withOpacity(0.2), // Adjust shadow color
-                  spreadRadius: 5,
-                  blurRadius: 7,
-                  offset: Offset(0, 3), // changes position of shadow
+          Expanded(
+            child: Container(
+              width: 200,
+              height: 200,
+              decoration: BoxDecoration(
+                color: Colors.white
+                    .withOpacity(0.2), // Adjust opacity for the glass effect
+                borderRadius:
+                    BorderRadius.circular(20), // Adjust border radius as needed
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.white.withOpacity(0.2), // Adjust shadow color
+                    spreadRadius: 5,
+                    blurRadius: 7,
+                    offset: Offset(0, 3), // changes position of shadow
+                  ),
+                ],
+              ),
+              // child: Center(
+              //   child: Text(
+              //     'Glassmorphism',
+              //     style: TextStyle(
+              //       fontSize: 20,
+              //       fontWeight: FontWeight.bold,
+              //       color: Colors.white,
+              //     ),
+              //   ),
+              // ),
+              // Apply the backdrop filter for blurring
+              foregroundDecoration: BoxDecoration(
+                borderRadius:
+                    BorderRadius.circular(20), // Same as the container
+                color: Colors.white
+                    .withOpacity(0.1), // Adjust opacity for the glass effect
+              ),
+              // Backdrop filter to create the blur effect
+              // Adjust the filter quality and blur sigma as needed
+              // This may impact performance
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: Container(
+                  color: Colors.white.withOpacity(0), // Transparent color
                 ),
-              ],
-            ),
-            // child: Center(
-            //   child: Text(
-            //     'Glassmorphism',
-            //     style: TextStyle(
-            //       fontSize: 20,
-            //       fontWeight: FontWeight.bold,
-            //       color: Colors.white,
-            //     ),
-            //   ),
-            // ),
-            // Apply the backdrop filter for blurring
-            foregroundDecoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20), // Same as the container
-              color: Colors.white
-                  .withOpacity(0.1), // Adjust opacity for the glass effect
-            ),
-            // Backdrop filter to create the blur effect
-            // Adjust the filter quality and blur sigma as needed
-            // This may impact performance
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-              child: Container(
-                color: Colors.white.withOpacity(0), // Transparent color
               ),
             ),
           ),
