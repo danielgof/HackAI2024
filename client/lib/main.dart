@@ -1,4 +1,5 @@
 import 'package:camera/camera.dart';
+import 'package:compas/pages/public/favorites_page.dart';
 import 'package:compas/pages/public/landing_page.dart';
 import 'package:compas/pages/public/login_page.dart';
 import 'package:compas/pages/private/profile_page.dart';
@@ -23,7 +24,8 @@ class MyApp extends StatelessWidget {
         title: 'See Food',
         theme: ThemeData(
           useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 251, 80, 27)),
+          colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color.fromARGB(255, 251, 80, 27)),
         ),
         home: Consumer<MyAppState>(
           builder: (context, appState, _) {
@@ -205,56 +207,6 @@ class BigCard extends StatelessWidget {
   }
 }
 
-class FavoritesPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    var theme = Theme.of(context);
-    var appState = context.watch<MyAppState>();
-
-    if (appState.favorites.isEmpty) {
-      return Center(
-        child: Text('No favorites yet.'),
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(30),
-          child: Text('You have '
-              '${appState.favorites.length} favorites:'),
-        ),
-        Expanded(
-          // Make better use of wide windows with a grid.
-          child: GridView(
-            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 400,
-              childAspectRatio: 400 / 80,
-            ),
-            children: [
-              for (var pair in appState.favorites)
-                ListTile(
-                  leading: IconButton(
-                    icon: Icon(Icons.delete_outline, semanticLabel: 'Delete'),
-                    color: theme.colorScheme.primary,
-                    onPressed: () {
-                      appState.removeFavorite(pair);
-                    },
-                  ),
-                  title: Text(
-                    pair.asLowerCase,
-                    semanticsLabel: pair.asPascalCase,
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class HistoryListView extends StatefulWidget {
   const HistoryListView({Key? key}) : super(key: key);
 
@@ -305,8 +257,8 @@ class _HistoryListViewState extends State<HistoryListView> {
                     ? Icon(Icons.favorite, size: 12)
                     : SizedBox(),
                 label: Text(
-                  pair.asLowerCase,
-                  semanticsLabel: pair.asPascalCase,
+                  pair,
+                  // semanticsLabel: pair.asPascalCase,
                 ),
               ),
             ),

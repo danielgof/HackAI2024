@@ -1,16 +1,17 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:ui';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/widgets.dart';
+import 'package:compas/state.dart';
+import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 
 enum PageType {
   LandingPage,
   CameraPage,
   PicutrePage,
+  WaitPage,
   ResponsePage;
 }
 
@@ -31,7 +32,8 @@ class LandingPageState extends State<LandingPage> {
   late Future<void> _initializeControllerFuture;
   PageType state = PageType.LandingPage;
   late String imagePath;
-  late final String response;
+  late String response;
+  bool isClicked = false;
 
   Future<void> _sendFileToServer() async {
     File imageFile = File(imagePath);
@@ -80,6 +82,7 @@ class LandingPageState extends State<LandingPage> {
           .substring(2));
       print(
           'Response body: ${jsonDecode(response.body)['choices'][0]['message']['content'].substring(2)}');
+      setResponsePage();
     } else {
       // Request failed with an error code
       print('Request failed with status: ${response.statusCode}');
@@ -111,6 +114,12 @@ class LandingPageState extends State<LandingPage> {
     });
   }
 
+  void setWaitPage() {
+    setState(() {
+      state = PageType.WaitPage;
+    });
+  }
+
   void setResult(String res) {
     setState(() {
       response = res;
@@ -136,12 +145,14 @@ class LandingPageState extends State<LandingPage> {
 
   @override
   Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
+    // var pair = appState.current;
     return SafeArea(
-      child: _buildContent(),
+      child: _buildContent(appState),
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(MyAppState appState) {
     switch (state) {
       case PageType.LandingPage:
         return _buildLandingPage();
@@ -150,7 +161,9 @@ class LandingPageState extends State<LandingPage> {
       case PageType.PicutrePage:
         return _buildPicturePage();
       case PageType.ResponsePage:
-        return _buildResponsePage();
+        return _buildResponsePage(appState);
+      case PageType.WaitPage:
+        return _buildWaitPage();
       default:
         return Container();
     }
@@ -162,45 +175,78 @@ class LandingPageState extends State<LandingPage> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           return SafeArea(
-            child: Stack(
+            child: Column(
               children: [
-                CameraPreview(_controller),
-                Positioned(
-                  bottom: 16.0,
-                  right: 16.0,
-                  child: FloatingActionButton(
-                    onPressed: () async {
-                      try {
-                        await _initializeControllerFuture;
-                        final image = await _controller.takePicture();
-                        if (!context.mounted) return;
-                        setState(() {
-                          imagePath = image.path;
-                          setPicutrePage(); // Switch to other page after taking picture
-                        });
-                      } catch (e) {
-                        print(e);
-                      }
-                    },
-                    child: const Icon(Icons.camera_alt),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        'Take a picture here',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-                Positioned(
-                  bottom: 16.0,
-                  left: 16.0,
-                  child: FloatingActionButton(
-                    onPressed: () async {
-                      try {
-                        setState(() {
-                          // imagePath = image.path;
-                          setLandingPage(); // Switch to other page after taking picture
-                        });
-                      } catch (e) {
-                        print(e);
-                      }
-                    },
-                    child: const Icon(Icons.arrow_back),
-                  ),
+                Stack(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius:
+                            BorderRadius.circular(20.0), // Rounded corners
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.5),
+                            spreadRadius: 5,
+                            blurRadius: 7,
+                            offset: Offset(0, 3), // Shadow position
+                          ),
+                        ],
+                      ),
+                      child: CameraPreview(_controller),
+                    ),
+                    Positioned(
+                      bottom: 16.0,
+                      right: 16.0,
+                      child: FloatingActionButton(
+                        onPressed: () async {
+                          try {
+                            await _initializeControllerFuture;
+                            final image = await _controller.takePicture();
+                            if (!context.mounted) return;
+                            setState(() {
+                              imagePath = image.path;
+                              setPicutrePage(); // Switch to other page after taking picture
+                            });
+                          } catch (e) {
+                            print(e);
+                          }
+                        },
+                        child: const Icon(Icons.camera_alt),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 16.0,
+                      left: 16.0,
+                      child: FloatingActionButton(
+                        onPressed: () async {
+                          try {
+                            setState(() {
+                              // imagePath = image.path;
+                              setLandingPage(); // Switch to other page after taking picture
+                            });
+                          } catch (e) {
+                            print(e);
+                          }
+                        },
+                        child: const Icon(Icons.arrow_back),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -215,16 +261,44 @@ class LandingPageState extends State<LandingPage> {
   Widget _buildPicturePage() {
     return SafeArea(
       child: Column(children: [
-        const Text('Display the Picture'),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: const Text(
+              'If you\'re ready, submit picture',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
         Stack(children: [
-          Expanded(child: Image.file(File(imagePath))),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20.0), // Rounded corners
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.5),
+                  spreadRadius: 5,
+                  blurRadius: 7,
+                  offset: Offset(0, 3), // Shadow position
+                ),
+              ],
+            ),
+            child: Expanded(
+              child: Image.file(
+                File(imagePath),
+              ),
+            ),
+          ),
           Positioned(
             bottom: 16.0,
             right: 16.0,
             child: FloatingActionButton(
               onPressed: () async {
+                setWaitPage();
                 await _sendFileToServer();
-                setResponsePage();
               },
               child: const Icon(Icons.send),
             ),
@@ -254,49 +328,15 @@ class LandingPageState extends State<LandingPage> {
             fit: BoxFit.cover,
           ),
         ),
-        child: Column(children: [
-          Expanded(
-            child: Container(
-              width: 200,
-              height: 200,
-              decoration: BoxDecoration(
-                color: Colors.white
-                    .withOpacity(0.2), // Adjust opacity for the glass effect
-                borderRadius:
-                    BorderRadius.circular(20), // Adjust border radius as needed
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.white.withOpacity(0.2), // Adjust shadow color
-                    spreadRadius: 5,
-                    blurRadius: 7,
-                    offset: Offset(0, 3), // changes position of shadow
-                  ),
-                ],
-              ),
-              // child: Center(
-              //   child: Text(
-              //     'Glassmorphism',
-              //     style: TextStyle(
-              //       fontSize: 20,
-              //       fontWeight: FontWeight.bold,
-              //       color: Colors.white,
-              //     ),
-              //   ),
-              // ),
-              // Apply the backdrop filter for blurring
-              foregroundDecoration: BoxDecoration(
-                borderRadius:
-                    BorderRadius.circular(20), // Same as the container
-                color: Colors.white
-                    .withOpacity(0.1), // Adjust opacity for the glass effect
-              ),
-              // Backdrop filter to create the blur effect
-              // Adjust the filter quality and blur sigma as needed
-              // This may impact performance
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                child: Container(
-                  color: Colors.white.withOpacity(0), // Transparent color
+        child: Stack(alignment: Alignment.topCenter, children: [
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                'Welcome to See Food',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
@@ -310,9 +350,15 @@ class LandingPageState extends State<LandingPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(
-                        width: 150,
-                        child: Text(
-                            'Take a picture of any kind of food to learn more about it.')),
+                      width: 150,
+                      child: Text(
+                        'Take a picture of any kind of food to learn more about it.',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                     TextButton(
                       onPressed: () {
                         setState(() {
@@ -331,7 +377,88 @@ class LandingPageState extends State<LandingPage> {
     );
   }
 
-  Widget _buildResponsePage() {
-    return response == Null ? Text('response') : Text(response);
+  Widget _buildResponsePage(MyAppState state) {
+    IconData icon;
+    var pair;
+    var appState = state;
+    if (appState.favorites.contains(pair)) {
+      icon = Icons.favorite;
+    } else {
+      icon = Icons.favorite_border;
+    }
+    return response == Null
+        ? Center(child: Text('No data found'))
+        : Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius:
+                        BorderRadius.circular(20.0), // Rounded corners
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.5),
+                        spreadRadius: 5,
+                        blurRadius: 7,
+                        offset: Offset(0, 3), // Shadow position
+                      ),
+                    ],
+                  ),
+                  child: Expanded(
+                    child: Image.file(
+                      // width: 300.0,
+                      height: 200.0,
+                      File(imagePath),
+                    ),
+                  ),
+                ),
+              ),
+              Stack(
+                children: [
+                  Card(
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          response,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 16.0,
+                    right: 16.0,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        appState.toggleFavorite(response);
+                      },
+                      icon: Icon(icon),
+                      label: Text('Like'),
+                    ),
+                  ),
+                ],
+              ),
+              Positioned(
+                bottom: 16.0,
+                right: 16.0,
+                child: FloatingActionButton(
+                  onPressed: () async {
+                    setLandingPage();
+                  },
+                  child: const Icon(Icons.home),
+                ),
+              ),
+            ],
+          );
+  }
+
+  Widget _buildWaitPage() {
+    return Center(child: CircularProgressIndicator.adaptive());
   }
 }
