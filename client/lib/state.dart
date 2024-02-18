@@ -1,9 +1,8 @@
-import 'package:english_words/english_words.dart';
 import 'package:flutter/widgets.dart';
 
 class MyAppState extends ChangeNotifier {
   bool isAuth = false;
-  // var current = WordPair.random();
+  var preferences = [];
   var history = <String>[];
   int pageSate = 0;
 
@@ -24,15 +23,6 @@ class MyAppState extends ChangeNotifier {
 
   GlobalKey? historyListKey;
 
-  // void getNext() {
-  //   history.insert(0, current);
-  //   var animatedList = historyListKey?.currentState as AnimatedListState?;
-  //   animatedList?.insertItem(0);
-  //   current = WordPair.random();
-  //   notifyListeners();
-  // }
-
-  // var favorites = <WordPair>[];
   var favorites = [];
 
   void toggleFavorite([String? recipe]) {
@@ -47,6 +37,20 @@ class MyAppState extends ChangeNotifier {
 
   void removeFavorite(String pair) {
     favorites.remove(pair);
+    notifyListeners();
+  }
+
+  void toggelPreference([String? pref]) {
+    if (preferences.contains(pref)) {
+      preferences.remove(pref);
+    } else {
+      preferences.add(pref);
+    }
+    notifyListeners();
+  }
+
+  void removePreference([String? pref]) {
+    preferences.remove(pref);
     notifyListeners();
   }
 }

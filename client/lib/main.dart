@@ -4,14 +4,10 @@ import 'package:compas/pages/public/landing_page.dart';
 import 'package:compas/pages/public/login_page.dart';
 import 'package:compas/pages/private/profile_page.dart';
 import 'package:compas/state.dart';
-import 'package:dart_openai/dart_openai.dart';
-import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  OpenAI.apiKey =
-      "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"; //CHANGE THIS LATER
   runApp(MyApp());
 }
 
@@ -116,7 +112,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         label: 'Favorites',
                       ),
                       BottomNavigationBarItem(
-                        icon: Icon(appState.isAuth ? Icons.account_circle : Icons.login),
+                        icon: Icon(appState.isAuth
+                            ? Icons.account_circle
+                            : Icons.login),
                         label: appState.isAuth ? 'Account' : 'Login',
                       ),
                     ],
@@ -159,49 +157,6 @@ class _MyHomePageState extends State<MyHomePage> {
             );
           }
         },
-      ),
-    );
-  }
-}
-
-class BigCard extends StatelessWidget {
-  const BigCard({
-    Key? key,
-    required this.pair,
-  }) : super(key: key);
-
-  final WordPair pair;
-
-  @override
-  Widget build(BuildContext context) {
-    var theme = Theme.of(context);
-    var style = theme.textTheme.displayMedium!.copyWith(
-      color: theme.colorScheme.onPrimary,
-    );
-
-    return Card(
-      color: theme.colorScheme.primary,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: AnimatedSize(
-          duration: Duration(milliseconds: 200),
-          // Make sure that the compound word wraps correctly when the window
-          // is too narrow.
-          child: MergeSemantics(
-            child: Wrap(
-              children: [
-                Text(
-                  pair.first,
-                  style: style.copyWith(fontWeight: FontWeight.w200),
-                ),
-                Text(
-                  pair.second,
-                  style: style.copyWith(fontWeight: FontWeight.bold),
-                )
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }
