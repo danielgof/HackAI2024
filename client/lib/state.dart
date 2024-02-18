@@ -26,7 +26,6 @@ class MyAppState extends ChangeNotifier {
   var favorites = [];
 
   void toggleFavorite([String? recipe]) {
-    // pair = pair ?? current;
     if (favorites.contains(recipe)) {
       favorites.remove(recipe);
     } else {
@@ -40,17 +39,29 @@ class MyAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void toggelPreference([String? pref]) {
-    if (preferences.contains(pref)) {
-      preferences.remove(pref);
-    } else {
-      preferences.add(pref);
+  void toggelPreference([List<String>? pref]) {
+    for (var element in pref!) {
+      if (pref.contains(element)) {
+        pref.remove(element);
+      }
+      pref.add(element);
     }
+    // preferences.remove(pref);
+    notifyListeners();
+    // preferences.addAll(pref!);
+    // if (preferences.contains(pref)) {
+    //   preferences.remove(pref);
+    // } else {
+    //   preferences.add(pref);
+    // }
     notifyListeners();
   }
 
-  void removePreference([String? pref]) {
-    preferences.remove(pref);
-    notifyListeners();
-  }
+  // void removePreference([List<String>? pref]) {
+  //   for (var element in pref!) {
+  //     pref.remove(element);
+  //   }
+  //   // preferences.remove(pref);
+  //   notifyListeners();
+  // }
 }

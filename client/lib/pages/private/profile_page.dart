@@ -28,9 +28,11 @@ class ProfilePageState extends State<ProfilePage> {
     'Mollusks (e.g., clams, mussels, oysters)',
     'Gluten-containing grains (e.g., barley, rye)',
   ];
+
   late List<String> _searchList;
   late List<bool> _checkedList;
   bool _isVisible = false;
+  var appState;
 
   @override
   void initState() {
@@ -43,6 +45,10 @@ class ProfilePageState extends State<ProfilePage> {
   @override
   void dispose() {
     _searchController.dispose();
+    appState = context.watch<MyAppState>();
+    setState(() {
+      appState.toggelPreference(_searchList);
+    });
     super.dispose();
   }
 
@@ -70,6 +76,7 @@ class ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
+
     return SafeArea(
       child: Scaffold(
         body: CustomScrollView(
@@ -144,7 +151,7 @@ class ProfilePageState extends State<ProfilePage> {
                           child: Row(
                             children: [
                               Text('Logout'),
-                              Icon(Icons.arrow_forward)
+                              Icon(Icons.arrow_forward),
                             ],
                           ),
                         ),
@@ -169,10 +176,12 @@ class ProfilePageState extends State<ProfilePage> {
                             value: _checkedList[index],
                             onChanged: (bool? value) {
                               _toggleCheckbox(index);
-                              if (_checkedList[index]) {
-                                appState.toggelPreference(_searchList[index]);
-                                
-                              }
+                              // if (_checkedList[index]) {
+                              //   // appState.toggelPreference(_searchList[index]);
+                              //   // setState(() {
+                              //   //   appState.toggelPreference(_searchList[index]);
+                              //   // });
+                              // }
                             },
                           );
                         },
