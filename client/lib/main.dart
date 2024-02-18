@@ -114,8 +114,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         label: 'Favorites',
                       ),
                       BottomNavigationBarItem(
-                        icon: Icon(Icons.login),
-                        label: 'Login',
+                        icon: Icon(appState.isAuth ? Icons.account_circle : Icons.login),
+                        label: appState.isAuth ? 'Account' : 'Login',
                       ),
                     ],
                     currentIndex: selectedIndex,
