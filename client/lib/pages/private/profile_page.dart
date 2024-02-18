@@ -92,7 +92,27 @@ class ProfilePageState extends State<ProfilePage> {
                       'Welcome, brutus_buckeye!',
                       style: TextStyle(fontSize: 16),
                     ),
-                    SizedBox(height: 20),
+                                        
+                    Visibility(
+                      visible: !_isVisible,
+                      child: SizedBox(
+                        height: 100, // Set the desired fixed height
+                        child: ListView.builder(
+                          itemCount: _list.length,
+                          itemBuilder: (context, index) {
+                            if (_checkedList[index]) {
+                              return ListTile(
+                                title: Text(_list[index]),
+                              );
+                            } else {
+                              return SizedBox.shrink(); // Hide if preference is not true
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+
+                   
                     Center(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
