@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
         title: 'See Food',
         theme: ThemeData(
           useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
+          colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 251, 80, 27)),
         ),
         home: Consumer<MyAppState>(
           builder: (context, appState, _) {

@@ -1,15 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
-import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
-
 import 'package:camera/camera.dart';
-import 'package:compas/main.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import 'package:dart_openai/dart_openai.dart';
+enum PageType {
+  LandingPage,
+  CameraPage,
+  PicutrePage,
+  ResponsePage;
+}
 
 class LandingPage extends StatefulWidget {
   const LandingPage({
@@ -26,155 +27,201 @@ class LandingPage extends StatefulWidget {
 class LandingPageState extends State<LandingPage> {
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
+  PageType state = PageType.LandingPage;
+  late final String imagePath;
+  late final String response;
+
+  Future<void> _sendFileToServer() async {
+    File imageFile = File(imagePath);
+    List<int> imageData = await imageFile.readAsBytes();
+    // Convert bytes to base64
+    String base64Image = base64Encode(imageData);
+    // print(base64Image);
+
+    var url = Uri.parse('https://api.openai.com/v1/chat/completions');
+    var requestBody = {
+      "model": "gpt-4-vision-preview",
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text":
+                  "Answer first question as 1 or 0. Is this food? Are there potential sources of allregies? What are they?"
+            },
+            {
+              "type": "image_url",
+              "image_url": {"url": "data:image/jpeg;base64,$base64Image"}
+            }
+          ]
+        }
+      ],
+      "max_tokens": 300
+    };
+
+    var headers = {
+      'Content-Type': 'application/json',
+      'Authorization':
+          'Bearer ',
+    };
+
+    var response = await http.post(
+      url,
+      headers: headers,
+      body: jsonEncode(requestBody),
+    );
+
+    if (response.statusCode == 200) {
+      // Request successful, parse the response body
+      setResult(jsonDecode(response.body)['choices'][0]['message']['content']
+          .substring(2));
+      print(
+          'Response body: ${jsonDecode(response.body)['choices'][0]['message']['content'].substring(2)}');
+    } else {
+      // Request failed with an error code
+      print('Request failed with status: ${response.statusCode}');
+      print(response.body);
+    }
+  }
+
+  void setPicutrePage() {
+    setState(() {
+      state = PageType.PicutrePage;
+    });
+  }
+
+  void setLandingPage() {
+    setState(() {
+      state = PageType.LandingPage;
+    });
+  }
+
+  void setCameraPage() {
+    setState(() {
+      state = PageType.CameraPage;
+    });
+  }
+
+  void setResponsePage() {
+    setState(() {
+      state = PageType.ResponsePage;
+    });
+  }
+
+  void setResult(String res) {
+    setState(() {
+      response = res;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    // To display the current output from the Camera,
-    // create a CameraController.
     _controller = CameraController(
-      // Get a specific camera from the list of available cameras.
       widget.camera,
-      // Define the resolution to use.
       ResolutionPreset.medium,
     );
 
-    // Next, initialize the controller. This returns a Future.
     _initializeControllerFuture = _controller.initialize();
   }
 
   @override
   void dispose() {
-    // Dispose of the controller when the widget is disposed.
     _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Take a picture')),
-      // You must wait until the controller is initialized before displaying the
-      // camera preview. Use a FutureBuilder to display a loading spinner until the
-      // controller has finished initializing.
-      body: FutureBuilder<void>(
-        future: _initializeControllerFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            // If the Future is complete, display the preview.
-            return CameraPreview(_controller);
-          } else {
-            // Otherwise, display a loading indicator.
-            return const Center(child: CircularProgressIndicator());
-          }
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        // Provide an onPressed callback.
-        onPressed: () async {
-          // Take the Picture in a try / catch block. If anything goes wrong,
-          // catch the error.
-          try {
-            // Ensure that the camera is initialized.
-            await _initializeControllerFuture;
-
-            // Attempt to take a picture and get the file `image`
-            // where it was saved.
-            final image = await _controller.takePicture();
-
-            if (!context.mounted) return;
-
-            // If the picture was taken, display it on a new screen.
-            await Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => DisplayPictureScreen(
-                  // Pass the automatically generated path to
-                  // the DisplayPictureScreen widget.
-                  imagePath: image.path,
-                ),
-              ),
-            );
-          } catch (e) {
-            // If an error occurs, log the error to the console.
-            print(e);
-          }
-        },
-        child: const Icon(Icons.camera_alt),
-      ),
+    return SafeArea(
+      child: _buildContent(),
     );
   }
-}
 
-// A widget that displays the picture taken by the user.
-class DisplayPictureScreen extends StatelessWidget {
-  final String imagePath;
-
-  const DisplayPictureScreen({super.key, required this.imagePath});
-
-  Future<void> _sendFileToServer() async {
-    final String apiUrl = 'https://api.openai.com/v1/completions';
-    final Uri uri = Uri.parse(apiUrl);
-    print('++++++++++++++++++++++++++++++++++++');
-    File imageFile = File(imagePath);
-    List<int> imageData = await imageFile.readAsBytes();
-    // Convert bytes to base64
-    String base64Image = base64Encode(imageData);
-    print(base64Image);
-
-    // var request = http.MultipartRequest('POST', uri)
-    //   ..headers['Authorization'] =
-    //       'Bearer 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'
-    //   ..headers['Content-Type'] = 'application/json'
-    //   ..files.add(await http.MultipartFile.fromPath('image', imagePath));
-
-    // try {
-    //   var response = await request.send();
-
-    //   if (response.statusCode == 200) {
-    //     var responseBody = await response.stream.bytesToString();
-    //     print(json.decode(responseBody)['response']);
-    //   } else {
-    //     print('Error: Unable to process the file.');
-    //   }
-    // } catch (error) {
-    //   print('error');
-    // }
+  Widget _buildContent() {
+    switch (state) {
+      case PageType.LandingPage:
+        return _buildLandingPage();
+      case PageType.CameraPage:
+        return _buildCameraPreview();
+      case PageType.PicutrePage:
+        return _buildPicturePage();
+      case PageType.ResponsePage:
+        return _buildResponsePage();
+      default:
+        return Container();
+    }
   }
-  // Future<void> sendApiRequest() async {
-  //   final apiUrl = 'https://api.openai.com/v1/completions';
 
-  //   final response = await http.post(
-  //     Uri.parse(apiUrl),
-  //     headers: <String, String>{
-  //       'Content-Type': 'application/json; charset=UTF-8',
-  //       'Authorization':
-  //           'Bearer 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'
-  //     },
-  //     body: jsonEncode(<String, dynamic>{
-  //       "model": "davinci-002",
-  //       "prompt": "how are you doing",
-  //       "max_tokens": 250,
-  //       "temperature": 0,
-  //       "top_p": 1
-  //     }),
-  //   );
-  //   print('++++++++++++++++++++++++++++++++++++++++++++');
-  //   print(response.body);
-  // }
+  Widget _buildCameraPreview() {
+    return FutureBuilder<void>(
+      future: _initializeControllerFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          return Stack(
+            children: [
+              CameraPreview(_controller),
+              Positioned(
+                bottom: 16.0,
+                left: 16.0,
+                child: FloatingActionButton(
+                  onPressed: () async {
+                    try {
+                      await _initializeControllerFuture;
+                      final image = await _controller.takePicture();
+                      if (!context.mounted) return;
+                      setState(() {
+                        imagePath = image.path;
+                        setPicutrePage(); // Switch to other page after taking picture
+                      });
+                    } catch (e) {
+                      print(e);
+                    }
+                  },
+                  child: const Icon(Icons.camera_alt),
+                ),
+              ),
+            ],
+          );
+        } else {
+          return Center(child: CircularProgressIndicator());
+        }
+      },
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Display the Picture')),
-      // The image is stored as a file on the device. Use the `Image.file`
-      // constructor with the given path to display the image.
-      body: Image.file(File(imagePath)),
-      floatingActionButton: FloatingActionButton(
+  Widget _buildPicturePage() {
+    return Column(children: [
+      const Text('Display the Picture'),
+      Expanded(child: Image.file(File(imagePath))),
+      FloatingActionButton(
         onPressed: () async {
           await _sendFileToServer();
+          setResponsePage();
         },
         child: const Icon(Icons.send),
       ),
+    ]);
+  }
+
+  Widget _buildLandingPage() {
+    return Column(
+      children: [
+        Text('Hello'),
+        TextButton(
+          onPressed: () {
+            setState(() {
+              setCameraPage();
+            });
+          },
+          child: Icon(Icons.camera_alt_outlined),
+        )
+      ],
     );
+  }
+
+  Widget _buildResponsePage() {
+    return response == Null ? Text('response') : Text(response);
   }
 }
