@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
@@ -34,7 +35,6 @@ class ProfilePageState extends State<ProfilePage> {
   late List<bool> _checkedList;
   bool _isVisible = false;
 
-
   @override
   void initState() {
     super.initState();
@@ -64,6 +64,12 @@ class ProfilePageState extends State<ProfilePage> {
     });
   }
 
+  void _toggleEditPrefrences(bool isVisible) {
+    setState(() {
+      _isVisible = !_isVisible;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
@@ -86,40 +92,91 @@ class ProfilePageState extends State<ProfilePage> {
             'Welcome, USERNAME!',
             style: TextStyle(fontSize: 16),
           ),
-          ElevatedButton(
-            onPressed: () {
-              appState.logout();
-            },
-            child: Column(
-              children: [Text('Logout'), Icon(Icons.arrow_forward)],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: _searchController,
-              onChanged: _filterList,
-              decoration: InputDecoration(
-                labelText: 'Search...',
-                fillColor: Colors.white,
-                border: OutlineInputBorder(),
+          Row(
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  _toggleEditPrefrences(_isVisible);
+                },
+                child: Column(
+                  children: [Text('Edit Prefrences')],
+                ),
               ),
-            ),
+              SizedBox(width: 5),
+              ElevatedButton(
+                onPressed: () {
+                  appState.logout();
+                },
+                child: Row(
+                  children: [Text('Logout'), Icon(Icons.arrow_forward)],
+                ),
+              ),     
+            ]
           ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: _searchList.length,
-              itemBuilder: (context, index) {
-                return CheckboxListTile(
-                  title: Text(_searchList[index]),
-                  value: _checkedList[index],
-                  onChanged: (bool? value) {
-                    _toggleCheckbox(index);
-                  },
-                );
-              },
-            ),
+          Visibility(
+            visible: _isVisible,
+            child: 
+              Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextField(
+                      controller: _searchController,
+                      onChanged: _filterList,
+                      decoration: InputDecoration(
+                        labelText: 'I am allergic to...',
+                        fillColor: Colors.white,
+                        filled: true,
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 100,
+                    child:  ListView.builder(
+                    itemCount: _searchList.length,
+                    itemBuilder: (context, index) {
+                      return CheckboxListTile(
+                        title: Text(_searchList[index]),
+                        value: _checkedList[index],
+                        onChanged: (bool? value) {
+                          _toggleCheckbox(index);
+                        },
+                      );
+                    },
+                    ),
+                  )
+                ]
+              ),
+            
           ),
+          // Padding(
+          //   padding: const EdgeInsets.all(8.0),
+          //   child: TextField(
+          //     controller: _searchController,
+          //     onChanged: _filterList,
+          //     decoration: InputDecoration(
+          //       labelText: 'I am allergic to...',
+          //       fillColor: Colors.white,
+          //       filled: true,
+          //       border: OutlineInputBorder(),
+          //     ),
+          //   ),
+          // ),
+          // Expanded(
+          //   child: ListView.builder(
+          //     itemCount: _searchList.length,
+          //     itemBuilder: (context, index) {
+          //       return CheckboxListTile(
+          //         title: Text(_searchList[index]),
+          //         value: _checkedList[index],
+          //         onChanged: (bool? value) {
+          //           _toggleCheckbox(index);
+          //         },
+          //       );
+          //     },
+          //   ),
+          // ),
         ],
       ),
     );
