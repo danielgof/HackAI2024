@@ -3,8 +3,8 @@ import 'package:flutter/widgets.dart';
 
 class MyAppState extends ChangeNotifier {
   bool isAuth = false;
-  var current = WordPair.random();
-  var history = <WordPair>[];
+  // var current = WordPair.random();
+  var history = <String>[];
   int pageSate = 0;
 
   void setPageSate(int page) {
@@ -24,25 +24,35 @@ class MyAppState extends ChangeNotifier {
 
   GlobalKey? historyListKey;
 
-  void getNext() {
-    history.insert(0, current);
-    var animatedList = historyListKey?.currentState as AnimatedListState?;
-    animatedList?.insertItem(0);
-    current = WordPair.random();
-    notifyListeners();
-  }
+  // void getNext() {
+  //   history.insert(0, current);
+  //   var animatedList = historyListKey?.currentState as AnimatedListState?;
+  //   animatedList?.insertItem(0);
+  //   current = WordPair.random();
+  //   notifyListeners();
+  // }
 
-  var favorites = <WordPair>[];
+  // var favorites = <WordPair>[];
+  var favorites = [];
 
-  void toggleFavorite([WordPair? pair]) {
-    pair = pair ?? current;
-    if (favorites.contains(pair)) {
-      favorites.remove(pair);
+  void toggleFavorite([String? recipe]) {
+    // pair = pair ?? current;
+    if (favorites.contains(recipe)) {
+      favorites.remove(recipe);
     } else {
-      favorites.add(pair);
+      favorites.add(recipe);
     }
     notifyListeners();
   }
+  // void toggleFavorite([WordPair? pair]) {
+  //   pair = pair ?? current;
+  //   if (favorites.contains(pair)) {
+  //     favorites.remove(pair);
+  //   } else {
+  //     favorites.add(pair);
+  //   }
+  //   notifyListeners();
+  // }
 
   void removeFavorite(WordPair pair) {
     favorites.remove(pair);
