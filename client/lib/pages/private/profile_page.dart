@@ -1,4 +1,6 @@
+import 'package:compas/state.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key});
@@ -67,6 +69,7 @@ class ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
     return SafeArea(
       child: Scaffold(
         body: CustomScrollView(
@@ -74,11 +77,19 @@ class ProfilePageState extends State<ProfilePage> {
             SliverToBoxAdapter(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      'My Account',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                children: <Widget>[
+                  Text(
+                    'My Account',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 10),
+                  ClipOval(
+                    child: Image.asset(
+                      'assets/brutus_buckeye.jpeg', // Assuming the image is stored in the assets folder
+                      width: 80, // Adjust the width as needed
+                      height: 80, // Adjust the height as needed
                     ),
+<<<<<<< HEAD
                     SizedBox(height: 10),
                     ClipOval(
                       child: Image.asset(
@@ -124,19 +135,42 @@ class ProfilePageState extends State<ProfilePage> {
                             child: Column(
                               children: [Text('Edit Preferences')],
                             ),
+=======
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'Welcome, brutus_buckeye!',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  SizedBox(height: 20),
+                  Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            _toggleEditPreferences(_isVisible);
+                          },
+                          child: Column(
+                            children: [Text('Edit Preferences')],
+>>>>>>> feb1f0ee89a55eb1d636e4c5a71066d66160d53c
                           ),
-                          ElevatedButton(
-                            onPressed: () {
-                              // Implement logout functionality
-                            },
-                            child: Row(
-                              children: [Text('Logout'), Icon(Icons.arrow_forward)],
-                            ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            appState.logout();
+                          },
+                          child: Row(
+                            children: [
+                              Text('Logout'),
+                              Icon(Icons.arrow_forward)
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
+                ],
               ),
             ),
             SliverList(
@@ -170,6 +204,11 @@ class ProfilePageState extends State<ProfilePage> {
                             value: _checkedList[index],
                             onChanged: (bool? value) {
                               _toggleCheckbox(index);
+                              if (_isVisible) {
+                                appState.toggelPreference(_searchList[index]);
+                              } else {
+                                appState.removePreference(_searchList[index]);
+                              }
                             },
                           );
                         },
