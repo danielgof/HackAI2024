@@ -1,11 +1,4 @@
-import 'dart:io';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:provider/provider.dart';
-
-import '../../../state.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key});
@@ -66,7 +59,7 @@ class ProfilePageState extends State<ProfilePage> {
     });
   }
 
-  void _toggleEditPrefrences(bool isVisible) {
+  void _toggleEditPreferences(bool isVisible) {
     setState(() {
       _isVisible = !_isVisible;
     });
@@ -74,58 +67,63 @@ class ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-    return SafeArea(
-      child: Column(
-        children: <Widget>[
-          Text(
-            'My Account',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          Column(
-            children: [
-              ClipOval(
-                child: Image.asset(
-                  'assets/brutus_buckeye.jpeg', // Assuming the image is stored in the assets folder
-                  width: 80, // Adjust the width as needed
-                  height: 80, // Adjust the height as needed
-                ),
-              ),
-            ],
-          ),
-          Text(
-            'Welcome, brutus_buckeye!',
-            style: TextStyle(fontSize: 16),
-          ),
-          Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    _toggleEditPrefrences(_isVisible);
-                  },
-                  child: Column(
-                    children: [Text('Edit Prefrences')],
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: <Widget>[
+          SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Text(
+                    'My Account',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    appState.logout();
-                  },
-                  child: Row(
-                    children: [Text('Logout'), Icon(Icons.arrow_forward)],
+                  SizedBox(height: 10),
+                  ClipOval(
+                    child: Image.asset(
+                      'assets/brutus_buckeye.jpeg', // Assuming the image is stored in the assets folder
+                      width: 80, // Adjust the width as needed
+                      height: 80, // Adjust the height as needed
+                    ),
                   ),
-                ),
-              ],
+                  SizedBox(height: 10),
+                  Text(
+                    'Welcome, brutus_buckeye!',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  SizedBox(height: 20),
+                  Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            _toggleEditPreferences(_isVisible);
+                          },
+                          child: Column(
+                            children: [Text('Edit Preferences')],
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            // Implement logout functionality
+                          },
+                          child: Row(
+                            children: [Text('Logout'), Icon(Icons.arrow_forward)],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
             ),
           ),
-          Visibility(
-            visible: _isVisible,
-            child: 
-              Column(
-                children: [
-                  Padding(
+          SliverList(
+            delegate: SliverChildListDelegate(
+              [
+                Visibility(
+                  visible: _isVisible,
+                  child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: TextField(
                       controller: _searchController,
@@ -138,52 +136,28 @@ class ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                   ),
-                  SizedBox(
+                ),
+                Visibility(
+                  visible: _isVisible,
+                  child: SizedBox(
                     height: 100,
-                    child:  ListView.builder(
-                    itemCount: _searchList.length,
-                    itemBuilder: (context, index) {
-                      return CheckboxListTile(
-                        title: Text(_searchList[index]),
-                        value: _checkedList[index],
-                        onChanged: (bool? value) {
-                          _toggleCheckbox(index);
-                        },
-                      );
-                    },
+                    child: ListView.builder(
+                      itemCount: _searchList.length,
+                      itemBuilder: (context, index) {
+                        return CheckboxListTile(
+                          title: Text(_searchList[index]),
+                          value: _checkedList[index],
+                          onChanged: (bool? value) {
+                            _toggleCheckbox(index);
+                          },
+                        );
+                      },
                     ),
-                  )
-                ]
-              ),
-            
+                  ),
+                ),
+              ],
+            ),
           ),
-          // Padding(
-          //   padding: const EdgeInsets.all(8.0),
-          //   child: TextField(
-          //     controller: _searchController,
-          //     onChanged: _filterList,
-          //     decoration: InputDecoration(
-          //       labelText: 'I am allergic to...',
-          //       fillColor: Colors.white,
-          //       filled: true,
-          //       border: OutlineInputBorder(),
-          //     ),
-          //   ),
-          // ),
-          // Expanded(
-          //   child: ListView.builder(
-          //     itemCount: _searchList.length,
-          //     itemBuilder: (context, index) {
-          //       return CheckboxListTile(
-          //         title: Text(_searchList[index]),
-          //         value: _checkedList[index],
-          //         onChanged: (bool? value) {
-          //           _toggleCheckbox(index);
-          //         },
-          //       );
-          //     },
-          //   ),
-          // ),
         ],
       ),
     );
