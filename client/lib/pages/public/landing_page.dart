@@ -77,14 +77,12 @@ class LandingPageState extends State<LandingPage> {
     );
 
     if (response.statusCode == 200) {
-      // Request successful, parse the response body
       setResult(jsonDecode(response.body)['choices'][0]['message']['content']
           .substring(2));
       print(
           'Response body: ${jsonDecode(response.body)['choices'][0]['message']['content'].substring(2)}');
       setResponsePage();
     } else {
-      // Request failed with an error code
       print('Request failed with status: ${response.statusCode}');
       print(response.body);
     }

@@ -37,22 +37,24 @@ class FavoritesPage extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: Column(
-              children: [
-                for (var pair in appState.favorites)
-                  ListTile(
-                    leading: IconButton(
-                      icon: Icon(Icons.delete_outline, semanticLabel: 'Delete'),
-                      color: theme.colorScheme.primary,
-                      onPressed: () {
-                        appState.removeFavorite(pair);
-                      },
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  for (var pair in appState.favorites)
+                    ListTile(
+                      leading: IconButton(
+                        icon: Icon(Icons.delete_outline, semanticLabel: 'Delete'),
+                        color: theme.colorScheme.primary,
+                        onPressed: () {
+                          appState.removeFavorite(pair);
+                        },
+                      ),
+                      title: Text(
+                        pair,
+                      ),
                     ),
-                    title: Text(
-                      pair,
-                    ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         ],

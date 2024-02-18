@@ -120,42 +120,44 @@ class ProfilePageState extends State<ProfilePage> {
               ],
             ),
           ),
-          Visibility(
-            visible: _isVisible,
-            child: 
-              Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextField(
-                      controller: _searchController,
-                      onChanged: _filterList,
-                      decoration: InputDecoration(
-                        labelText: 'I am allergic to...',
-                        fillColor: Colors.white,
-                        filled: true,
-                        border: OutlineInputBorder(),
+          Expanded(
+            child: Visibility(
+              visible: _isVisible,
+              child: 
+                Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: _filterList,
+                        decoration: InputDecoration(
+                          labelText: 'I am allergic to...',
+                          fillColor: Colors.white,
+                          filled: true,
+                          border: OutlineInputBorder(),
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(
-                    height: 100,
-                    child:  ListView.builder(
-                    itemCount: _searchList.length,
-                    itemBuilder: (context, index) {
-                      return CheckboxListTile(
-                        title: Text(_searchList[index]),
-                        value: _checkedList[index],
-                        onChanged: (bool? value) {
-                          _toggleCheckbox(index);
-                        },
-                      );
-                    },
-                    ),
-                  )
-                ]
-              ),
-            
+                    SizedBox(
+                      height: 100,
+                      child:  ListView.builder(
+                      itemCount: _searchList.length,
+                      itemBuilder: (context, index) {
+                        return CheckboxListTile(
+                          title: Text(_searchList[index]),
+                          value: _checkedList[index],
+                          onChanged: (bool? value) {
+                            _toggleCheckbox(index);
+                          },
+                        );
+                      },
+                      ),
+                    )
+                  ]
+                ),
+              
+            ),
           ),
           // Padding(
           //   padding: const EdgeInsets.all(8.0),
