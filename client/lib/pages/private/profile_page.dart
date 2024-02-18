@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
 import '../../../state.dart';
@@ -52,18 +53,25 @@ class ProfilePageState extends State<ProfilePage> {
     return SafeArea(
       child: Column(
         children: <Widget>[
-          Card(
-            child: Column(children: [
-              Text('profile page'),
-              Icon(Icons.account_circle_rounded),
-              ElevatedButton(
+          SizedBox(
+            width: 200,
+            child: Card(
+              child: Column(children: [
+                Text('profile page'),
+                Icon(Icons.account_circle_rounded),
+                ElevatedButton(
                   onPressed: () {
                     appState.logout();
                   },
                   child: Column(
                     children: [Text('Logout'), Icon(Icons.arrow_forward)],
-                  ))
-            ]),
+                  ),
+                ),
+                SizedBox(
+                  height: 40,
+                ),
+              ]),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),

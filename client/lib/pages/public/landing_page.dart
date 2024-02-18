@@ -63,7 +63,7 @@ class LandingPageState extends State<LandingPage> {
     var headers = {
       'Content-Type': 'application/json',
       'Authorization':
-          'Bearer ',
+          'Bearer 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',
     };
 
     var response = await http.post(
@@ -185,7 +185,7 @@ class LandingPageState extends State<LandingPage> {
             ],
           );
         } else {
-          return Center(child: CircularProgressIndicator());
+          return Center(child: CircularProgressIndicator.adaptive());
         }
       },
     );
@@ -206,18 +206,24 @@ class LandingPageState extends State<LandingPage> {
   }
 
   Widget _buildLandingPage() {
-    return Column(
-      children: [
-        Text('Hello'),
-        TextButton(
-          onPressed: () {
-            setState(() {
-              setCameraPage();
-            });
-          },
-          child: Icon(Icons.camera_alt_outlined),
-        )
-      ],
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+            image: AssetImage("assets/land_back.png"), fit: BoxFit.cover),
+      ),
+      child: Column(
+        children: [
+          Text('Hello'),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                setCameraPage();
+              });
+            },
+            child: Icon(Icons.camera_alt_outlined),
+          )
+        ],
+      ),
     );
   }
 
