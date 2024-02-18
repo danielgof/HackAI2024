@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../state.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+  const ProfilePage({Key? key});
 
   @override
   State<ProfilePage> createState() => ProfilePageState();
@@ -14,22 +14,33 @@ class ProfilePage extends StatefulWidget {
 class ProfilePageState extends State<ProfilePage> {
   late TextEditingController _searchController;
   List<String> _list = [
-    'Apple',
-    'Banana',
-    'Orange',
-    'Grapes',
-    'Watermelon',
-    'Pineapple',
-    'Mango',
-    'Strawberry',
+    'Milk',
+    'Eggs',
+    'Fish (e.g., bass, flounder, cod)',
+    'Crustacean shellfish (e.g., crab, lobster, shrimp)',
+    'Tree Nuts (e.g., almonds, walnuts, pecans)',
+    'Peanuts',
+    'Wheat',
+    'Soybeans',
+    'Sesame seeds',
+    'Mustard',
+    'Sulfites',
+    'Celery',
+    'Lupin',
+    'Mollusks (e.g., clams, mussels, oysters)',
+    'Gluten-containing grains (e.g., barley, rye)',
   ];
   late List<String> _searchList;
+  late List<bool> _checkedList;
+  bool _isVisible = false;
+
 
   @override
   void initState() {
     super.initState();
     _searchController = TextEditingController();
     _searchList = _list;
+    _checkedList = List.generate(_list.length, (index) => false);
   }
 
   @override
@@ -47,32 +58,40 @@ class ProfilePageState extends State<ProfilePage> {
     });
   }
 
+  void _toggleCheckbox(int index) {
+    setState(() {
+      _checkedList[index] = !_checkedList[index];
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
     return SafeArea(
       child: Column(
         children: <Widget>[
-          SizedBox(
-            width: 200,
-            child: Card(
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('profile page'),
-                    Icon(Icons.account_circle_rounded),
-                    ElevatedButton(
-                      onPressed: () {
-                        appState.logout();
-                      },
-                      child: Column(
-                        children: [Text('Logout'), Icon(Icons.arrow_forward)],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 40,
-                    ),
-                  ]),
+          Text(
+            'My Account',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          Column(
+            children: [
+              Icon(
+                Icons.account_circle_rounded, //PROFILE PICTURE GOES HERE
+                size: 80,
+              ),
+            ],
+          ),
+          Text(
+            'Welcome, USERNAME!',
+            style: TextStyle(fontSize: 16),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              appState.logout();
+            },
+            child: Column(
+              children: [Text('Logout'), Icon(Icons.arrow_forward)],
             ),
           ),
           Padding(
@@ -82,6 +101,7 @@ class ProfilePageState extends State<ProfilePage> {
               onChanged: _filterList,
               decoration: InputDecoration(
                 labelText: 'Search...',
+                fillColor: Colors.white,
                 border: OutlineInputBorder(),
               ),
             ),
@@ -90,8 +110,12 @@ class ProfilePageState extends State<ProfilePage> {
             child: ListView.builder(
               itemCount: _searchList.length,
               itemBuilder: (context, index) {
-                return ListTile(
+                return CheckboxListTile(
                   title: Text(_searchList[index]),
+                  value: _checkedList[index],
+                  onChanged: (bool? value) {
+                    _toggleCheckbox(index);
+                  },
                 );
               },
             ),
@@ -100,28 +124,4 @@ class ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   var appState = context.watch<MyAppState>();
-  //   return SafeArea(
-  //       child: Column(
-  //     mainAxisAlignment: MainAxisAlignment.center,
-  //     children: [
-  //       Card(
-  //         child: Column(children: [
-  //           Text('profile page'),
-  //           Icon(Icons.account_circle_rounded),
-  //           ElevatedButton(
-  //               onPressed: () {
-  //                 appState.logout();
-  //               },
-  //               child: Column(
-  //                 children: [Text('Logout'), Icon(Icons.arrow_forward)],
-  //               ))
-  //         ]),
-  //       ),
-  //     ],
-  //   ));
-  // }
 }
