@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:camera/camera.dart';
@@ -28,7 +29,7 @@ class LandingPageState extends State<LandingPage> {
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
   PageType state = PageType.LandingPage;
-  late final String imagePath;
+  late String imagePath;
   late final String response;
 
   Future<void> _sendFileToServer() async {
@@ -159,30 +160,49 @@ class LandingPageState extends State<LandingPage> {
       future: _initializeControllerFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          return Stack(
-            children: [
-              CameraPreview(_controller),
-              Positioned(
-                bottom: 16.0,
-                left: 16.0,
-                child: FloatingActionButton(
-                  onPressed: () async {
-                    try {
-                      await _initializeControllerFuture;
-                      final image = await _controller.takePicture();
-                      if (!context.mounted) return;
-                      setState(() {
-                        imagePath = image.path;
-                        setPicutrePage(); // Switch to other page after taking picture
-                      });
-                    } catch (e) {
-                      print(e);
-                    }
-                  },
-                  child: const Icon(Icons.camera_alt),
+          return SafeArea(
+            child: Stack(
+              children: [
+                CameraPreview(_controller),
+                Positioned(
+                  bottom: 16.0,
+                  right: 16.0,
+                  child: FloatingActionButton(
+                    onPressed: () async {
+                      try {
+                        await _initializeControllerFuture;
+                        final image = await _controller.takePicture();
+                        if (!context.mounted) return;
+                        setState(() {
+                          imagePath = image.path;
+                          setPicutrePage(); // Switch to other page after taking picture
+                        });
+                      } catch (e) {
+                        print(e);
+                      }
+                    },
+                    child: const Icon(Icons.camera_alt),
+                  ),
                 ),
-              ),
-            ],
+                Positioned(
+                  bottom: 16.0,
+                  left: 16.0,
+                  child: FloatingActionButton(
+                    onPressed: () async {
+                      try {
+                        setState(() {
+                          // imagePath = image.path;
+                          setLandingPage(); // Switch to other page after taking picture
+                        });
+                      } catch (e) {
+                        print(e);
+                      }
+                    },
+                    child: const Icon(Icons.arrow_back),
+                  ),
+                ),
+              ],
+            ),
           );
         } else {
           return Center(child: CircularProgressIndicator.adaptive());
@@ -192,37 +212,117 @@ class LandingPageState extends State<LandingPage> {
   }
 
   Widget _buildPicturePage() {
-    return Column(children: [
-      const Text('Display the Picture'),
-      Expanded(child: Image.file(File(imagePath))),
-      FloatingActionButton(
-        onPressed: () async {
-          await _sendFileToServer();
-          setResponsePage();
-        },
-        child: const Icon(Icons.send),
-      ),
-    ]);
+    return SafeArea(
+      child: Column(children: [
+        const Text('Display the Picture'),
+        Stack(children: [
+          Expanded(child: Image.file(File(imagePath))),
+          Positioned(
+            bottom: 16.0,
+            right: 16.0,
+            child: FloatingActionButton(
+              onPressed: () async {
+                await _sendFileToServer();
+                setResponsePage();
+              },
+              child: const Icon(Icons.send),
+            ),
+          ),
+          Positioned(
+            bottom: 16.0,
+            left: 16.0,
+            child: FloatingActionButton(
+              onPressed: () async {
+                imagePath = '';
+                setCameraPage();
+              },
+              child: const Icon(Icons.arrow_back),
+            ),
+          ),
+        ]),
+      ]),
+    );
   }
 
   Widget _buildLandingPage() {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        image: DecorationImage(
-            image: AssetImage("assets/land_back.png"), fit: BoxFit.cover),
-      ),
-      child: Column(
-        children: [
-          Text('Hello'),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                setCameraPage();
-              });
-            },
-            child: Icon(Icons.camera_alt_outlined),
-          )
-        ],
+    return SafeArea(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/land_back.png"),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Column(children: [
+          Container(
+            width: 200,
+            height: 200,
+            decoration: BoxDecoration(
+              color: Colors.white
+                  .withOpacity(0.2), // Adjust opacity for the glass effect
+              borderRadius:
+                  BorderRadius.circular(20), // Adjust border radius as needed
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.white.withOpacity(0.2), // Adjust shadow color
+                  spreadRadius: 5,
+                  blurRadius: 7,
+                  offset: Offset(0, 3), // changes position of shadow
+                ),
+              ],
+            ),
+            // child: Center(
+            //   child: Text(
+            //     'Glassmorphism',
+            //     style: TextStyle(
+            //       fontSize: 20,
+            //       fontWeight: FontWeight.bold,
+            //       color: Colors.white,
+            //     ),
+            //   ),
+            // ),
+            // Apply the backdrop filter for blurring
+            foregroundDecoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20), // Same as the container
+              color: Colors.white
+                  .withOpacity(0.1), // Adjust opacity for the glass effect
+            ),
+            // Backdrop filter to create the blur effect
+            // Adjust the filter quality and blur sigma as needed
+            // This may impact performance
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                color: Colors.white.withOpacity(0), // Transparent color
+              ),
+            ),
+          ),
+          Center(
+            child: SizedBox(
+              height: 200,
+              width: 200,
+              child: Card(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                        width: 150,
+                        child: Text(
+                            'Take a picture of any kind of food to learn more about it.')),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          setCameraPage();
+                        });
+                      },
+                      child: Icon(Icons.camera_alt_outlined),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ]),
       ),
     );
   }

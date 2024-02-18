@@ -56,21 +56,23 @@ class ProfilePageState extends State<ProfilePage> {
           SizedBox(
             width: 200,
             child: Card(
-              child: Column(children: [
-                Text('profile page'),
-                Icon(Icons.account_circle_rounded),
-                ElevatedButton(
-                  onPressed: () {
-                    appState.logout();
-                  },
-                  child: Column(
-                    children: [Text('Logout'), Icon(Icons.arrow_forward)],
-                  ),
-                ),
-                SizedBox(
-                  height: 40,
-                ),
-              ]),
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('profile page'),
+                    Icon(Icons.account_circle_rounded),
+                    ElevatedButton(
+                      onPressed: () {
+                        appState.logout();
+                      },
+                      child: Column(
+                        children: [Text('Logout'), Icon(Icons.arrow_forward)],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 40,
+                    ),
+                  ]),
             ),
           ),
           Padding(
