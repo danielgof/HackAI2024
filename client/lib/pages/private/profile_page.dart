@@ -147,7 +147,7 @@ class ProfilePageState extends State<ProfilePage> {
                   Visibility(
                     visible: _isVisible,
                     child: SizedBox(
-                      height: 100,
+                      height: 200,
                       child: ListView.builder(
                         itemCount: _searchList.length,
                         itemBuilder: (context, index) {
